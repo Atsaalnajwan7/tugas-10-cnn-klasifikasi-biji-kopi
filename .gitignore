@@ -6,3 +6,4 @@ __pycache__/
 static/uploads/*
 !static/uploads/.gitkeep
 "@ | Out-File -Encoding utf8 .gitignore
+model_kopi.h5

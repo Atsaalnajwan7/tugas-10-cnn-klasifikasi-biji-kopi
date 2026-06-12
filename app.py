@@ -3,10 +3,18 @@ from tensorflow import keras
 import numpy as np
 from PIL import Image
 import os
+import gdown
 
 app = Flask(__name__)
 
-model = keras.models.load_model("model_kopi.h5")
+MODEL_PATH = "model_kopi.h5"
+FILE_ID = "1ctXjkMnl27NhCf3Akt1yDDfkECiAGJny"
+
+if not os.path.exists(MODEL_PATH) or os.path.getsize(MODEL_PATH) < 1_000_000:
+    print("Downloading model from Google Drive...")
+    gdown.download(id=FILE_ID, output=MODEL_PATH, quiet=False)
+
+model = keras.models.load_model(MODEL_PATH)
 class_names = ['Dark', 'Green', 'Light', 'Medium']
 
 UPLOAD_FOLDER = 'static/uploads'
