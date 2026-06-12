@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roast Lens — Klasifikasi Biji Kopi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --espresso: #2C1810;
+    --coffee: #6F4E37;
+    --latte: #D4A574;
+    --cream: #F5EBE0;
+    --card: #EDE0D1;
+    --medium: #8B5A2B;
+    --green: #7A9B57;
+    --line: #DCC9B4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--espresso);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    background-image:
+      radial-gradient(circle at 90% 10%, rgba(111,78,55,0.06) 0%, transparent 40%),
+      radial-gradient(circle at 10% 90%, rgba(122,155,87,0.05) 0%, transparent 40%);
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--medium);
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(32px, 6vw, 46px);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    margin-bottom: 12px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--coffee);
+  }
+
+  .lede {
+    font-size: 15px;
+    color: var(--coffee);
+    line-height: 1.6;
+    max-width: 440px;
+    margin-bottom: 36px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 4px 24px rgba(44,24,16,0.06);
+  }
+
+  .upload-zone {
+    border: 2px dashed var(--latte);
+    border-radius: 14px;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    position: relative;
+  }
+
+  .upload-zone:hover,
+  .upload-zone.dragover {
+    border-color: var(--medium);
+    background: rgba(212,165,116,0.12);
+  }
+
+  .upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .upload-icon {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 12px;
+    color: var(--medium);
+  }
+
+  .upload-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--espresso);
+    margin-bottom: 4px;
+  }
+
+  .upload-hint {
+    font-size: 12px;
+    color: var(--coffee);
+  }
+
+  .filename {
+    font-size: 13px;
+    color: var(--medium);
+    margin-top: 10px;
+    font-weight: 600;
+    display: none;
+  }
+
+  .submit-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: var(--espresso);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+  }
+
+  .submit-btn:hover { background: var(--coffee); }
+  .submit-btn:active { transform: scale(0.98); }
+
+  .submit-btn:focus-visible,
+  .upload-zone:focus-within {
+    outline: 2px solid var(--medium);
+    outline-offset: 2px;
+  }
+
+  /* ===== Hasil Prediksi ===== */
+  .result {
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+  }
+
+  .result-grid {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+  }
+
+  .result-img {
+    width: 96px;
+    height: 96px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--line);
+  }
+
+  .result-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--coffee);
+    margin-bottom: 6px;
+  }
+
+  .result-class {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 1.1;
+    margin-bottom: 6px;
+  }
+
+  .result-confidence {
+    font-size: 13px;
+    color: var(--coffee);
+  }
+
+  .result-confidence b { color: var(--espresso); }
+
+  /* Roast scale signature element */
+  .roast-scale {
+    margin-top: 8px;
+  }
+
+  .roast-scale-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--coffee);
+    margin-bottom: 10px;
+  }
+
+  .roast-track {
+    position: relative;
+    height: 10px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #8FAE6E 0%, #D9C08C 33%, #B8825A 66%, #4A2F22 100%);
+    margin-bottom: 10px;
+  }
+
+  .roast-marker {
+    position: absolute;
+    top: -6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 3px solid var(--espresso);
+    transform: translateX(-50%);
+    box-shadow: 0 2px 6px rgba(44,24,16,0.25);
+    transition: left 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .roast-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--coffee);
+    font-weight: 500;
+  }
+
+  footer {
+    margin-top: 24px;
+    font-size: 12px;
+    color: var(--coffee);
+    text-align: center;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 20px; }
+    .result-grid { flex-direction: column; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .roast-marker { transition: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">Roast Lens · Klasifikasi CNN</div>
+    <h1>Kenali biji kopi<br><em>dari satu foto</em>.</h1>
+    <p class="lede">
+      Unggah foto biji kopi dan model akan menempatkannya pada skala roasting —
+      dari Green hingga Dark — berdasarkan warna dan tekstur permukaan biji.
+    </p>
+
+    <div class="card">
+      <form method="POST" enctype="multipart/form-data" id="uploadForm">
+        <label class="upload-zone" id="dropZone">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 16V4M12 4l-4 4M12 4l4 4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="upload-text">Pilih atau seret foto biji kopi</div>
+          <div class="upload-hint">JPG atau PNG, disarankan close-up satu jenis biji</div>
+          <input type="file" name="image" id="fileInput" accept="image/*" required>
+          <div class="filename" id="filename"></div>
+        </label>
+        <button type="submit" class="submit-btn">Analisis biji kopi</button>
+      </form>
+
+      {% if prediction %}
+      <div class="result">
+        <div class="result-grid">
+          {% if image %}
+          <img src="{{ image }}" class="result-img" alt="Foto biji kopi yang diunggah">
+          {% endif %}
+          <div>
+            <div class="result-label">Hasil klasifikasi</div>
+            <div class="result-class">{{ prediction }}</div>
+            <div class="result-confidence">Tingkat keyakinan model: <b>{{ confidence }}%</b></div>
+          </div>
+        </div>
+
+        <div class="roast-scale">
+          <div class="roast-scale-label">Posisi pada skala roasting</div>
+          <div class="roast-track">
+            <div class="roast-marker" id="roastMarker"></div>
+          </div>
+          <div class="roast-ticks">
+            <span>Green</span>
+            <span>Light</span>
+            <span>Medium</span>
+            <span>Dark</span>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <footer>Model CNN dilatih pada Coffee Bean Dataset · Tugas Praktikum Kecerdasan Buatan</footer>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const filename = document.getElementById('filename');
+    const dropZone = document.getElementById('dropZone');
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        filename.textContent = fileInput.files[0].name;
+        filename.style.display = 'block';
+      }
+    });
+
+    ['dragenter', 'dragover'].forEach(evt =>
+      dropZone.addEventListener(evt, e => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+      })
+    );
+    ['dragleave', 'drop'].forEach(evt =>
+      dropZone.addEventListener(evt, e => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+      })
+    );
+    dropZone.addEventListener('drop', e => {
+      if (e.dataTransfer.files.length > 0) {
+        fileInput.files = e.dataTransfer.files;
+        filename.textContent = e.dataTransfer.files[0].name;
+        filename.style.display = 'block';
+      }
+    });
+
+    // Posisikan marker pada skala roasting berdasarkan kelas hasil prediksi
+    const marker = document.getElementById('roastMarker');
+    if (marker) {
+      const prediction = "{{ prediction }}";
+      const positions = { "Green": 5, "Light": 33, "Medium": 66, "Dark": 95 };
+      const pos = positions[prediction] ?? 50;
+      requestAnimationFrame(() => {
+        marker.style.left = pos + '%';
+      });
+    }
+  </script>
+</body>
+</html>

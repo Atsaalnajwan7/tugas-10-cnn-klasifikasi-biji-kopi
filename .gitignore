@@ -1,0 +1,9 @@
+@"
+venv/
+archive/
+__pycache__/
+*.pyc
+static/uploads/*
+!static/uploads/.gitkeep
+model_kopi.h5
+"@ | Out-File -Encoding utf8 .gitignore
